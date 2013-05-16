@@ -40,11 +40,21 @@ class LineItemsController < ApplicationController
   # POST /line_items
   # POST /line_items.json
   def create
-    @line_item = LineItem.new(params[:line_item])
+    @cart = current_cart
+    product = Product.find(params[:product_id])
+    
+    if LineItem.exists?( product_id:product.id, cart_id: @cart.id)
+      @line_item = LineItem.where(:product_id => product.id, :cart_id => @cart.id).first 
+      @line_item.update_attributes(quantity: @line_item.quantity + 1)
+    else
+      @line_item = @cart.line_items.build(product_id: product.id)
+      @line_item.update_attributes(quantity: 1)
+    end
 
     respond_to do |format|
       if @line_item.save
-        format.html { redirect_to @line_item, notice: 'Line item was successfully created.' }
+        format.html { redirect_to @line_item.cart,
+notice: 'Line item was successfully created.' }
         format.json { render json: @line_item, status: :created, location: @line_item }
       else
         format.html { render action: "new" }
@@ -58,9 +68,10 @@ class LineItemsController < ApplicationController
   def update
     @line_item = LineItem.find(params[:id])
 
+
     respond_to do |format|
-      if @line_item.update_attributes(params[:line_item])
-        format.html { redirect_to @line_item, notice: 'Line item was successfully updated.' }
+      if @line_item.update_attributes(quantity: @line_item.quantity - 1)
+        format.html { redirect_to @line_item.cart, notice: 'Line item was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }
@@ -74,9 +85,10 @@ class LineItemsController < ApplicationController
   def destroy
     @line_item = LineItem.find(params[:id])
     @line_item.destroy
+    @cart = current_cart
 
     respond_to do |format|
-      format.html { redirect_to line_items_url }
+      format.html { redirect_to @cart, notice: "Item removed from the cart" }
       format.json { head :no_content }
     end
   end

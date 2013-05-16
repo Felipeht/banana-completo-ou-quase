@@ -1,5 +1,22 @@
+<% if notice %>
 <p id="notice"><%= notice %></p>
+<% end %>
 
-
-<%= link_to 'Edit', edit_cart_path(@cart) %> |
-<%= link_to 'Back', carts_path %>
+<h2>Your Pragmatic Cart</h2>
+<% if @cart.line_items.length > 0 %>
+<%= link_to 'Eat my shorts', @cart, method: :delete %>
+<% end %>
+<table>
+<% @cart.line_items.each do |item| %>
+	<tr>
+		<td><%= item.product.title %></td>
+		<td>Quantity: <%= item.quantity %></td>
+		<td><%= link_to 'Remove all', item,
+                method: :delete %></td>
+        <td><%=if(item.quantity>1)
+        		 link_to('Remove one', item, method: :put)
+        		  end%></td>
+	</tr>
+<% end %>
+</table>
+<%= link_to 'Back', store_path %>
