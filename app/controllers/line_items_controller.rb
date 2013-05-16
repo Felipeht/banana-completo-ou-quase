@@ -43,13 +43,16 @@ class LineItemsController < ApplicationController
     @cart = current_cart
     product = Product.find(params[:product_id])
     
-    if LineItem.exists?( product_id:product.id, cart_id: @cart.id)
-      @line_item = LineItem.where(:product_id => product.id, :cart_id => @cart.id).first 
+    if LineItem.exists?( product_id:product.id, cart_id: @cart.id, price: product.price)
+      @line_item = LineItem.where(:product_id => product.id, :cart_id => @cart.id, :price => product.price).first 
       @line_item.update_attributes(quantity: @line_item.quantity + 1)
     else
       @line_item = @cart.line_items.build(product_id: product.id)
       @line_item.update_attributes(quantity: 1)
     end
+
+    @line_item.price = product.price
+
 
     respond_to do |format|
       if @line_item.save

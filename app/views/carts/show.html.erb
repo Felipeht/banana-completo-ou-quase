@@ -4,19 +4,22 @@
 
 <h2>Your Pragmatic Cart</h2>
 <% if @cart.line_items.length > 0 %>
-<%= link_to 'Eat my shorts', @cart, method: :delete %>
+<%= link_to 'Empty cart', @cart, method: :delete %>
 <% end %>
 <table>
 <% @cart.line_items.each do |item| %>
 	<tr>
 		<td><%= item.product.title %></td>
 		<td>Quantity: <%= item.quantity %></td>
-		<td><%= link_to 'Remove all', item,
-                method: :delete %></td>
-        <td><%=if(item.quantity>1)
-        		 link_to('Remove one', item, method: :put)
-        		  end%></td>
+    <td><%= number_to_currency(item.price) %></td>
+		<td><%= link_to 'Remove all', item, method: :delete %></td>
+    <td><%=link_to('Remove one', item, method: :put) if item.quantity>1 %></td>
 	</tr>
 <% end %>
+  <tr class="total_cart">
+    <td></td>
+    <td>Total:</td>
+    <td> <%= number_to_currency @cart.totalPrice %> </td>
+  </tr>
 </table>
 <%= link_to 'Back', store_path %>
